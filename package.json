@@ -1,0 +1,13 @@
+{
+  "name": "sum-app",
+  "private": true,
+  "scripts": {
+    "serve": "http-server frontend -p 5173 -c-1",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
+  },
+  "devDependencies": {
+    "cypress": "^13.13.0",
+    "http-server": "^14.1.1"
+  }
+}

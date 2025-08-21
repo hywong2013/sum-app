@@ -1,0 +1,17 @@
+unit test
+pytest tests\unit\test_add.py
+pytest --cov=src/mycalc --cov-report=term-missing tests\unit\test_add.py
+
+api test
+pytest tests\integration\test_api.py
+pytest --cov=src/mycalc --cov-report=term-missing tests\integration\test_api.py
+
+integration test
+uvicorn app.main:app --host 127.0.0.1 --port 8000
+pytest tests\integration\test_integration.py
+pytest --cov=src/mycalc --cov-report=term-missing tests\integration\test_integration.py
+
+e2e test
+npm run serve
+npm run cypress:open
+npm run cypress:run
