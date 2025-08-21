@@ -9,7 +9,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      # 後端與前端在 CI 內部啟起來用
       API_BASE: http://127.0.0.1:8000
       WEB_BASE: http://127.0.0.1:5173
       PYTHON_VERSION: "3.12"
@@ -30,7 +29,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          # 產 coverage xml 供平台或分析工具使用
           pip install coverage
 
       - name: Start FastAPI (background)
@@ -47,17 +45,17 @@ jobs:
 
       - name: Install Node deps
         run: npm ci
-        working-directory: ./   # package.json 在倉庫根目錄
 
       - name: Start frontend (background)
         run: |
           npx http-server frontend -p 5173 -c-1 > http.log 2>&1 &
           echo $! > http.pid
 
+      # 這裡加了 timeout，最多等 60 秒
       - name: Wait for services
         run: |
-          npx wait-on $API_BASE/health
-          npx wait-on $WEB_BASE
+          npx wait-on --timeout 60000 $API_BASE/health
+          npx wait-on --timeout 60000 $WEB_BASE
 
       # ---------- Tests ----------
       - name: Pytest (unit + integration) with coverage
@@ -67,7 +65,7 @@ jobs:
       - name: Cypress E2E (headless)
         env:
           CYPRESS_baseUrl: ${{ env.WEB_BASE }}
-          CYPRESS_API_BASE: ${{ env.API_BASE }}       # 你可在前端或測試內讀取
+          CYPRESS_API_BASE: ${{ env.API_BASE }}
         run: npx cypress run
 
       # ---------- Artifacts ----------
