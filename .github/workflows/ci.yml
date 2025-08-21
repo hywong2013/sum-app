@@ -13,7 +13,7 @@ jobs:
       WEB_BASE: http://127.0.0.1:5173
       PYTHON_VERSION: "3.12"
       # 關鍵：讓 uvicorn 找得到 app 與 src/mycalc
-      PYTHONPATH: ".:src"
+      PYTHONPATH: "."
 
     steps:
       - name: Checkout

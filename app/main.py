@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, StrictFloat
-from mycalc.add import add_numbers
+from src.mycalc.add import add_numbers
 
 class AddRequest(BaseModel):
     a: float
