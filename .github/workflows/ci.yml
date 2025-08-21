@@ -12,6 +12,8 @@ jobs:
       API_BASE: http://127.0.0.1:8000
       WEB_BASE: http://127.0.0.1:5173
       PYTHON_VERSION: "3.12"
+      # 關鍵：讓 uvicorn 找得到 app 與 src/mycalc
+      PYTHONPATH: ".:src"
 
     steps:
       - name: Checkout
@@ -31,10 +33,22 @@ jobs:
           pip install -r requirements.txt
           pip install coverage
 
+      - name: Sanity check import
+        run: |
+          python - << 'PY'
+          import sys
+          print("PYTHONPATH:", sys.path)
+          import app.main as m
+          print("Import OK, app:", hasattr(m, "app"))
+          PY
+
       - name: Start FastAPI (background)
         run: |
           nohup uvicorn app.main:app --host 127.0.0.1 --port 8000 > uvicorn.log 2>&1 &
           echo $! > uvicorn.pid
+          sleep 2
+          echo "---- uvicorn.log (head) ----"
+          head -n 50 uvicorn.log || true
 
       # ---------- Node: frontend + Cypress ----------
       - name: Setup Node
@@ -51,11 +65,14 @@ jobs:
           npx http-server frontend -p 5173 -c-1 > http.log 2>&1 &
           echo $! > http.pid
 
-      # 這裡加了 timeout，最多等 60 秒
-      - name: Wait for services
+      # 等待服務（加長 timeout 並在失敗時輸出 log）
+      - name: Wait for backend
         run: |
-          npx wait-on --timeout 60000 $API_BASE/health
-          npx wait-on --timeout 60000 $WEB_BASE
+          npx wait-on --timeout 120000 $API_BASE/health || (echo "=== uvicorn.log ===" && cat uvicorn.log && exit 1)
+
+      - name: Wait for frontend
+        run: |
+          npx wait-on --timeout 60000 $WEB_BASE || (echo "=== http.log ===" && cat http.log && exit 1)
 
       # ---------- Tests ----------
       - name: Pytest (unit + integration) with coverage
@@ -75,10 +92,11 @@ jobs:
           name: coverage-xml
           path: coverage.xml
 
-      - name: Upload pytest & server logs
+      - name: Upload backend & frontend logs
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: backend-logs
+          name: server-logs
           path: |
             uvicorn.log
             http.log
