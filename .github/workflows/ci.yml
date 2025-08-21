@@ -68,7 +68,7 @@ jobs:
       # 等待服務（加長 timeout 並在失敗時輸出 log）
       - name: Wait for backend
         run: |
-          npx wait-on --timeout 120000 $API_BASE/health || (echo "=== uvicorn.log ===" && cat uvicorn.log && exit 1)
+          npx wait-on --timeout 120000 --http-get $API_BASE/health || (echo "=== uvicorn.log ==="; cat uvicorn.log; exit 1)
 
       - name: Wait for frontend
         run: |
