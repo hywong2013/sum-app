@@ -19,4 +19,5 @@ npm run serve
 npm run cypress:open
 npm run cypress:run
 
+npx http-server frontend -p 5173 -c-1
 npx cypress run 

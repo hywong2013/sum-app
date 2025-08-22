@@ -1,7 +1,17 @@
 # tests/unit/test_add.py
 import math
 import pytest
-from mycalc.add import add_numbers
+from mycalc.add import add_numbers, validate_number
+
+def test_validate_number_valid():
+    assert validate_number(5) == 5
+    assert validate_number(3.14) == 3.14
+
+def test_validate_number_invalid():
+    with pytest.raises(TypeError):
+        validate_number("abc")
+    with pytest.raises(TypeError):
+        validate_number([1, 2])
 
 def test_add_integers():
     assert add_numbers(2, 3) == 5
