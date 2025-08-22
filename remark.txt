@@ -3,13 +3,16 @@ pytest tests\unit\test_add.py
 pytest --cov=src/mycalc --cov-report=term-missing tests\unit\test_add.py
 
 api test
-pytest tests\integration\test_api.py
-pytest --cov=src/mycalc --cov-report=term-missing tests\integration\test_api.py
+pytest tests\api\test_api.py
+pytest --cov=src/mycalc --cov-report=term-missing tests\api\test_api.py
 
 integration test
 uvicorn app.main:app --host 127.0.0.1 --port 8000
 pytest tests\integration\test_integration.py
 pytest --cov=src/mycalc --cov-report=term-missing tests\integration\test_integration.py
+
+
+pytest --cov=src/ --cov-report=term-missing --cov-report=xml:coverage.xml --cov-report=html:coverage_html --junitxml=pytest-report.xml --html=pytest-report.html --self-contained-html
 
 e2e test
 npm run serve
